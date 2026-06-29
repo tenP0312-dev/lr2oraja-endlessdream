@@ -50,9 +50,17 @@ public class LeaderBoardBar extends DirectoryBar {
 				return new Bar[0];
 			}
 			IRScoreData[] irScoreData = response.getData();
-            LeaderboardEntry[] leaderboard = Arrays.stream(irScoreData)
+			ScoreData localScoreData = selector.getScoreDataCache()
+					.readScoreData(songData, selector.main.getPlayerConfig().getLnmode());
+			IRScoreData localScore = localScoreData != null ? new IRScoreData(localScoreData) : null;
+			boolean hasLocalScore = localScore != null;
+            LeaderboardEntry[] leaderboard = Arrays.stream(irScoreData != null ? irScoreData : new IRScoreData[0])
+                                                 .filter(score -> score != null && (!hasLocalScore || score.player == null || !score.player.isEmpty()))
                                                  .map(LeaderboardEntry::newEntryPrimaryIR)
                                                  .toArray(LeaderboardEntry[] ::new);
+			if (hasLocalScore) {
+				return fromIRScoreData(localScore, leaderboard);
+			}
             return fromIRScoreData(leaderboard);
 		} else {
 			Pair<IRScoreData, LeaderboardEntry[]> scores = LR2IRAccessor.getScoreData(new IRChartData(songData));
@@ -116,7 +124,7 @@ public class LeaderBoardBar extends DirectoryBar {
 			}
 		}
 		if (!inserted) {
-			bars[id] = createFunctionBar(id, LeaderboardEntry.newEntryPrimaryIR(localScore), true);
+			bars[id] = createFunctionBar(id + 1, LeaderboardEntry.newEntryPrimaryIR(localScore), true);
 		}
 		return bars;
 	}
