@@ -36,6 +36,7 @@ import bms.player.beatoraja.input.BMSPlayerInputProcessor;
 import bms.player.beatoraja.input.KeyCommand;
 import bms.player.beatoraja.ir.*;
 import bms.player.beatoraja.play.BMSPlayer;
+import bms.player.beatoraja.play.BMSPlayerRule;
 import bms.player.beatoraja.play.TargetProperty;
 import bms.player.beatoraja.result.CourseResult;
 import bms.player.beatoraja.result.MusicResult;
@@ -58,7 +59,7 @@ import static bms.player.beatoraja.modmenu.ImGuiRenderer.getShowModMenu;
 public class MainController {
 	private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
-	private static final String VERSION = Version.versionLong;
+	private static final String VERSION = Version.getArenaDisplayName();
 
 	public static final boolean debug = false;
 	public static final int debugTextXpos = 10;
@@ -164,6 +165,7 @@ public class MainController {
             }
         }
 		this.player = player;
+		BMSPlayerRule.setConfiguredRuleProfile(player.getBmsirRulesetProfile());
 
 		this.bmsfile = f;
 
@@ -404,6 +406,7 @@ public class MainController {
 	public void loadNewProfile(PlayerConfig pc) {
 		config.setPlayername(pc.getId());
 		player = pc;
+		BMSPlayerRule.setConfiguredRuleProfile(pc.getBmsirRulesetProfile());
 
 		playdata = new PlayDataAccessor(config);
 
