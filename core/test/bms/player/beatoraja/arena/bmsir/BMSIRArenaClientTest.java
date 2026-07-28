@@ -26,12 +26,12 @@ class BMSIRArenaClientTest {
 
     @Test
     void arenaIdentityUsesOneVersionForDisplayAndWireProtocol() {
-        assertEquals("0.2.0-dev", Version.getArenaClientVersion());
+        assertEquals("0.3.0-dev", Version.getArenaClientVersion());
         assertEquals(
                 Version.getArenaClientVersion(),
                 BMSIRArenaClient.clientVersion()
         );
-        assertTrue(Version.getArenaDisplayName().contains("BMS-IR Arena oraja 0.2.0-dev"));
+        assertTrue(Version.getArenaDisplayName().contains("BMS-IR Arena oraja 0.3.0-dev"));
         assertTrue(Version.getArenaDisplayName().contains(Version.getLongVersion()));
     }
 
@@ -45,6 +45,8 @@ class BMSIRArenaClientTest {
         assertFalse(config.isBmsirArenaRandomMirror());
         assertTrue(config.isBmsirArenaStayInRoom());
         assertEquals("all", config.getBmsirArenaNominationPolicy());
+        assertEquals("single", config.getBmsirArenaSeriesFormat());
+        assertEquals(2, config.getBmsirArenaFirstToWins());
         assertEquals(60, config.getBmsirArenaNominationSeconds());
         assertEquals(10, config.getBmsirArenaOptionSeconds());
         assertEquals(0, config.getBmsirArenaIntermissionSeconds());
@@ -54,6 +56,12 @@ class BMSIRArenaClientTest {
         assertEquals(2, config.getBmsirArenaOverlayMode());
         config.setBmsirArenaOverlayMode(-1);
         assertEquals(0, config.getBmsirArenaOverlayMode());
+        config.setBmsirArenaNominationPolicy("rotate");
+        assertEquals("rotate", config.getBmsirArenaNominationPolicy());
+        config.setBmsirArenaSeriesFormat("first_to");
+        config.setBmsirArenaFirstToWins(99);
+        assertEquals("first_to", config.getBmsirArenaSeriesFormat());
+        assertEquals(5, config.getBmsirArenaFirstToWins());
     }
 
     @Test
@@ -97,14 +105,16 @@ class BMSIRArenaClientTest {
     }
 
     @Test
-    void arenaAllowsSupportedRandomsButRejectsSRandomAndAssistOptions() {
+    void arenaAllowsSRandomButRejectsAssistOptions() {
         assertTrue(BMSIRArenaClient.isAllowedArenaRandom(0));
         assertTrue(BMSIRArenaClient.isAllowedArenaRandom(1));
         assertTrue(BMSIRArenaClient.isAllowedArenaRandom(2));
         assertTrue(BMSIRArenaClient.isAllowedArenaRandom(3));
+        assertTrue(BMSIRArenaClient.isAllowedArenaRandom(4));
         assertTrue(BMSIRArenaClient.isAllowedArenaRandom(5));
-        assertFalse(BMSIRArenaClient.isAllowedArenaRandom(4));
         assertFalse(BMSIRArenaClient.isAllowedArenaRandom(6));
+        assertTrue(BMSIRArenaClient.usesSynchronizedRandomSeed(2));
+        assertFalse(BMSIRArenaClient.usesSynchronizedRandomSeed(4));
     }
 
     @Test
@@ -165,6 +175,10 @@ class BMSIRArenaClientTest {
         assertEquals(
                 "R-RANDOM",
                 BMSIRArenaClient.playOptionLabel(3, Mode.BEAT_7K.id)
+        );
+        assertEquals(
+                "S-RANDOM",
+                BMSIRArenaClient.playOptionLabel(4, Mode.BEAT_7K.id)
         );
     }
 
